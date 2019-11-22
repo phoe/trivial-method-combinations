@@ -10,7 +10,7 @@
 (defun method-combination-name (method-combination)
   "Returns the name of the method combination."
   (check-type method-combination method-combination)
-  #-(or sbcl ccl ecl clasp abcl clisp)
+  #-(or sbcl ccl ecl clasp abcl allegro clisp)
   (error "Your implementation is not supported by TRIVIAL-METHOD-COMBINATION.
 Please patch the library at your earliest convenience or open an issue at
 this library's issue tracker.")
@@ -24,13 +24,15 @@ this library's issue tracker.")
   (clos::method-combination-name method-combination)
   #+abcl
   (mop::method-combination-name method-combination)
+  #+allegro
+  (excl::method-combination-type method-combination)
   #+clisp
   (clos::method-combination-name method-combination))
 
 (defun method-combination-arglist (method-combination)
   "Returns the argument list of the method combination."
   (check-type method-combination method-combination)
-  #-(or sbcl ccl ecl clasp abcl clisp)
+  #-(or sbcl ccl ecl clasp abcl allegro clisp)
   (error "Your implementation is not supported by TRIVIAL-METHOD-COMBINATION.
 Please patch the library at your earliest convenience or open an issue at
 this library's issue tracker.")
@@ -55,6 +57,10 @@ this library's issue tracker.")
     (mop::long-method-combination
      (values (mop::long-method-combination-arguments method-combination)
              t))
+    #+allegro
+    ((not excl::short-method-combination)
+     (warn "Allegro CL does not store lambda list for method combinations")
+     (values nil t))
     #+clisp
     (clos::method-combination
      (let ((args-lambda-list
